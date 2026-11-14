@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block style %}
+  .day { margin-bottom: 14px; }
+  .day h2 { font-size: 23px; margin: 0; padding: 4px 8px; border-bottom: 3px solid #000; }
+  .day.today h2 { background: #000; color: #fff; }
+  .day h2 a { text-decoration: none; }
+  .day.today h2 a { color: #fff; }
+  .events { width: 100%; border-collapse: collapse; }
+  .events td { padding: 8px 6px; border-bottom: 1px solid #000; vertical-align: top; }
+  .events td.time { width: 7.2em; white-space: nowrap; font-weight: bold; font-family: Helvetica, Arial, sans-serif; font-size: 19px; padding-top: 10px; }
+  .title { font-size: 23px; font-weight: bold; }
+  .meta { font-size: 17px; margin-top: 2px; }
+  .desc { font-size: 17px; margin-top: 4px; }
+  .empty { padding: 8px 6px; font-style: italic; }
+  .single .title { font-size: 26px; }
+{% endblock %}
+{% block content %}
+{% set ns = namespace(shown=0) %}
+{% for day in days %}
+  {% if day.events or not hide_empty or day.is_today %}
+  {% set ns.shown = ns.shown + 1 %}
+  <div class="day{% if day.is_today %} today{% endif %}{% if single_day %} single{% endif %}">
+    {% if not single_day %}<h2><a href="{{ link('/day', date=day.date.isoformat()) }}">{{ day.label }}</a></h2>{% endif %}
+    {% if day.events %}
+    <table class="events">
+      {% for it in day.events %}
+      <tr>
+        <td class="time">{{ it.time }}</td>
+        <td>
+          <div class="title">{{ it.ev.title }}</div>
+          {% if it.ev.location or (show_calendar_name and it.ev.calendar) %}
+          <div class="meta">{% if it.ev.location %}@ {{ it.ev.location }}{% endif %}{% if it.ev.location and show_calendar_name and it.ev.calendar %} · {% endif %}{% if show_calendar_name and it.ev.calendar %}[{{ it.ev.calendar }}]{% endif %}</div>
+          {% endif %}
+          {% if single_day and it.ev.description %}<div class="desc">{{ it.ev.description|truncate(300) }}</div>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <div class="empty">{{ T.no_events }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endfor %}
+{% if ns.shown == 0 %}<div class="empty">{{ T.no_events }}</div>{% endif %}
+{% endblock %}
