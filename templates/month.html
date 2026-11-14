@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block style %}
+  body { font-size: 18px; }
+  .month { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .month th { border: 2px solid #000; padding: 4px 0; font-size: 17px; font-family: Helvetica, Arial, sans-serif; }
+  .month td { border: 2px solid #000; vertical-align: top; height: 118px; padding: 2px 3px; overflow: hidden; }
+  .month td.out { color: #555; }
+  .month td.out .ev { color: #555; }
+  .num { display: block; font-weight: bold; font-size: 20px; text-decoration: none; font-family: Helvetica, Arial, sans-serif; }
+  .month td.today .num { background: #000; color: #fff; padding: 0 4px; }
+  .ev { font-size: 14px; line-height: 1.2; margin-top: 2px; overflow: hidden; max-height: 2.4em; word-wrap: break-word; font-family: Helvetica, Arial, sans-serif; }
+  .ev b { font-weight: bold; }
+  .more { font-size: 13px; font-style: italic; }
+{% endblock %}
+{% block content %}
+<table class="month">
+  <tr>{% for w in T.weekdays_short %}<th>{{ w }}</th>{% endfor %}</tr>
+  {% for week in weeks %}
+  <tr>
+    {% for day in week %}
+    <td class="{% if not day.in_month %}out{% endif %}{% if day.is_today %} today{% endif %}">
+      <a class="num" href="{{ link('/day', date=day.date.isoformat()) }}">{{ day.date.day }}</a>
+      {% for it in day.events[:max_per_day] %}
+      <div class="ev">{% if not it.ev.all_day and it.time != T.all_day %}<b>{{ it.ev.start.strftime('%H:%M') if it.ev.start.date() == day.date else '→' }}</b> {% endif %}{{ it.ev.title }}</div>
+      {% endfor %}
+      {% if day.events|length > max_per_day %}<div class="more">+{{ day.events|length - max_per_day }} {{ T.more }}</div>{% endif %}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="{{ 'en' if T.today == 'Today' else 'vi' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% if refresh %}<meta http-equiv="refresh" content="{{ refresh }}">{% endif %}
+<title>{{ title }}</title>
+<style>
+  /* Thiết kế cho màn hình e-ink: đen trắng, chữ to, không hiệu ứng */
+  html, body { margin: 0; padding: 0; background: #fff; color: #000; }
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 22px; line-height: 1.35; padding: 12px 16px; }
+  a { color: #000; }
+  .nav { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  .nav td { border: 2px solid #000; text-align: center; padding: 0; }
+  .nav a { display: block; padding: 10px 4px; text-decoration: none; font-weight: bold; font-size: 20px; }
+  .nav td.active { background: #000; }
+  .nav td.active a { color: #fff; }
+  .head { width: 100%; border-collapse: collapse; margin: 6px 0 12px; }
+  .head td { padding: 0; vertical-align: middle; }
+  .head h1 { font-size: 30px; margin: 0; }
+  .head .pager { text-align: right; white-space: nowrap; }
+  .pager a { display: inline-block; border: 2px solid #000; padding: 6px 12px; margin-left: 6px; text-decoration: none; font-weight: bold; font-size: 19px; }
+  .error { border: 3px solid #000; padding: 10px; margin: 10px 0; font-weight: bold; }
+  .footer { margin-top: 18px; border-top: 1px solid #000; padding-top: 6px; font-size: 16px; }
+  .footer a { margin-left: 10px; }
+  {% block style %}{% endblock %}
+</style>
+</head>
+<body>
+<table class="nav"><tr>
+  <td{% if view == 'upcoming' %} class="active"{% endif %}><a href="{{ link('/') }}">{{ T.upcoming }}</a></td>
+  <td{% if view == 'day' %} class="active"{% endif %}><a href="{{ link('/day') }}">{{ T.day }}</a></td>
+  <td{% if view == 'week' %} class="active"{% endif %}><a href="{{ link('/week') }}">{{ T.week }}</a></td>
+  <td{% if view == 'month' %} class="active"{% endif %}><a href="{{ link('/month') }}">{{ T.month_view }}</a></td>
+</tr></table>
+
+<table class="head"><tr>
+  <td><h1>{{ heading }}</h1></td>
+  <td class="pager"><a href="{{ prev_url }}">{{ T.prev }}</a><a href="{{ link(request.path) }}">{{ T.today }}</a><a href="{{ next_url }}">{{ T.next }}</a></td>
+</tr></table>
+
+{% if not configured %}<div class="error">{{ T.not_configured }}</div>{% endif %}
+{% for e in errors %}<div class="error">{{ e }}</div>{% endfor %}
+
+{% block content %}{% endblock %}
+
+<div class="footer">{{ T.updated }} {{ updated }} · {{ now.day }}/{{ now.month }}/{{ now.year }}
+  <a href="{{ link(request.path, date=request.args.get('date')) }}">{{ T.refresh }}</a></div>
+</body>
+</html>
